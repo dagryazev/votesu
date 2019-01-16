@@ -29,7 +29,7 @@ export default {
     }
   },
   mounted() {
-    Inputmask("+99999999999").mask(document.getElementById('inputPhone'));
+    Inputmask("89999999999").mask(document.getElementById('inputPhone'));
   },
   methods: {
     sendData( event ){
@@ -43,17 +43,19 @@ export default {
         },
         method: "POST",
         body: JSON.stringify({
-          "first_name": this.firstname,
-          "last_name":  this.lastname,
-          "phone":      localStorage.phone,
-          "email":      this.email
+          data:{
+            "first_name": this.firstname,
+            "last_name":  this.lastname,
+            "phone":      localStorage.phone,
+            "email":      this.email
+          }
         })
       })
             .then( response => {
               return response.json()
             })
             .then( object => {
-              if(object.code)
+              if(object.data.code)
                 this.$router.push("verify_reg")
               else console.error("Error");
             })

@@ -28,6 +28,9 @@ export default {
     SlidesColsComponents,
     SlideContainterComponents,
     DetailsObjectComponents
+  },
+  created(){
+    console.log('sdf');
   }
 }
 </script>

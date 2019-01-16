@@ -89,23 +89,29 @@ const Access = function(token) {
   switch (nameRoute) {
     case 'registration':
       if(token) router.push({name: "presentation"})
+      return false;
       break;
     case 'login':
       if(token) router.push({name: "presentation"})
+      return false;
       break;
     case 'presentation':
       if(!token) router.push({name: "main"})
+      return true;
       break;
     case 'edit':
       if(!token) router.push({name: "main"})
+      return true;
       break;
     case 'verify_reg':
       if(token) router.push({name: "presentation"})
       if(!this.$store.state.phone == '') router.push({name: "registration"})
+      return false;
       break;
     case 'verify_login':
       if(token) router.push({name: "presentation"})
       if(this.$store.state.phone == '') router.push({name: "login"})
+      return false;
       break;
     default:
       break;
@@ -127,16 +133,18 @@ export default {
     }
   },
   created(){
-    Access(this.$cookie.get("token"))
+    this.$store.commit("uploadPresentation")
     this.$store.commit('updatePhone', localStorage.phone)
-
-    if(this.$cookie.get("token") != null)
-        this.$store.commit("updateToken")
-    setInterval(() => {
-      if(this.$cookie.get("token") != null){
+    if( Access(this.$cookie.get("token")) ){
+      if(this.$cookie.get("token") == null)
           this.$store.commit("updateToken")
-        }
-    }, 50000)
+      setInterval(() => {
+        if(this.$cookie.get("token") == null){
+            this.$store.commit("updateToken")
+          }
+      }, 50000)
+
+    }
   },
   mounted(){
 

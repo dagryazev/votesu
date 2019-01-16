@@ -19,24 +19,29 @@ export default {
   methods:{
     sendCode( event ){
       event.preventDefault()
-      let code = this.code,
-          headers = new Headers([
-            ['Content-Type', 'application/x-www-form-urlencoded']
-          ]);
+      let code = this.code
+
       fetch("https://slide.freel.me/api/v1/register/confirm",
       {
-        headers,
+        headers:{
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json"
+        },
         method: "POST",
-        body: `phone=${this.$store.state.phone.replace("+","%2B")}&code=${code}`
+        body: JSON.stringify({
+          data:{
+            phone: this.$store.state.phone,
+            code
+          }
+        })
       })
       .then( response => {
         return response.json()
       })
       .then( token => {
-        console.log(token);
-        if(token.token){
-          this.$cookie.set("token", token.token, {expires: token.expires_in + 's'})
-          this.$cookie.set("token_refresh", token.token, {expires: '86400s'})
+        if(token.data.token){
+          this.$cookie.set("token", token.data.token, {expires: token.data.expires_in + 's'})
+          this.$cookie.set("token_refresh", token.data.token, {expires: '86400s'})
           this.$router.push("presentation")
         }
       })

@@ -31,19 +31,23 @@ export default {
           'Accept': 'application/vnd.api+json'
         },
         method: "POST",
-        body: JSON.stringify({phone: this.$store.state.phone, code})
+        body: JSON.stringify({
+          data:{
+            phone: this.$store.state.phone,
+            code
+          }
+        })
       })
       .then( response => {
         console.log(response.headers);
         return response.json()
       })
       .then( token => {
-        console.log(token);
-        if(token.token){
-          this.$cookie.set("token", token.token, {expires: token.expires_in + 's'})
-          this.$cookie.set("token_refresh", token.token, {expires: '86400s'})
+        if(token.data){
+          this.$cookie.set("token", token.data.token, {expires: token.data.expires_in + 's'})
+          this.$cookie.set("token_refresh", token.data.token, {expires: '86400s'})
           this.$router.push("presentation")
-        }else this.error = "Не верный код подтверждения"
+        }else this.error =  "Код ошибки: " + token.error.code + " - " + token.error.title
       })
     }
   }

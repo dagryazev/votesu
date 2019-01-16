@@ -21,29 +21,32 @@ export default {
     }
   },
   mounted() {
-    Inputmask("+99999999999").mask(document.getElementById('inputPhone'));
+    Inputmask("89999999999").mask(document.getElementById('inputPhone'));
   },
   methods: {
     sendData( event ){
       event.preventDefault();
 
-      let headers = new Headers([
-        ['Content-Type', 'application/x-www-form-urlencoded']
-      ]);
-
-      fetch('https://slide.freel.me/api/login',
+      fetch('https://slide.freel.me/api/v1/login',
       {
-        headers,
+        headers:{
+          "Content-Type": "application/vnd.api+json",
+          "Accept": "application/vnd.api+json"
+        },
         method: "POST",
-        body: `phone=${this.phone.replace("+","%2B")}`
+        body: JSON.stringify({
+          data:{
+            phone: this.phone
+          }
+        })
       })
       .then( response => {
         return response.json()
       })
       .then( object => {
-        if(object.code)
+        if(object.data)
           this.$router.push("verify_login")
-        else this.error = object.error
+        else this.error = "Код ошибки: " + object.error.code + " - " + object.error.title
       })
     }
   },

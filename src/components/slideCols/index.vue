@@ -1,10 +1,11 @@
 <template lang="html">
   <div>
-    <div v-for="(item, index) in this.$store.getters.getPresentationId($route.params.id).relationships.slides">
-      <img :src="item.thumbnail" @click="updateSelectedSlide(index)" class="img-thumbnail" style="margin: 10px 0px;">
+    <div v-for="(item, index) in this.$store.getters.getPresentationId($route.params.id).slides">
+      <img src="/image/thumbnail.svg" @click="updateSelectedSlide(item.id)" class="img-thumbnail" style="margin: 10px 0px;">
     </div>
     <div class="addSlide">
       <a @click="addSlide">+ Добавить</a>
+      <a @click="addSlidePoll">+ Добавить опрос</a>
     </div>
   </div>
 </template>
@@ -24,6 +25,16 @@ export default {
         slide_position: 0,
         slide: {}
       })
+    },
+    addSlidePoll: function(){
+      this.$store.commit('addSlidePoll', {
+        id_slide: this.$store.state.selectedSlide,
+        name_poll: "Опрос 1",
+        options_poll: [
+          {text: "Ответ 1"},
+          {text: "Ответ 2"}
+        ]
+      })
     }
   }
 }
@@ -35,7 +46,7 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 15px; 
+  padding: 15px;
   font-size: 1em;
 }
 </style>

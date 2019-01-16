@@ -1,6 +1,7 @@
 <template lang="html">
   <div class="canvas">
-    <div v-for="(object, index) of this.$store.getters.getPresentationId(this.$route.params.id)" class="canvas_object">
+    <div v-if="this.$store.getters.getPresentationId(this.$route.params.id).slides[this.$store.state.selectedSlide].attributes.slide_type == 'poll'" class="canvas_object">
+      <h1 class="center">{{this.$store.getters.getPresentationId(this.$route.params.id).slides[this.$store.state.selectedSlide].attributes.name}}</h1>
     </div>
   </div>
 </template>
@@ -30,5 +31,8 @@ export default {
 }
 .canvas_object input{
   border: none;
+}
+.center{
+  text-align: center;
 }
 </style>

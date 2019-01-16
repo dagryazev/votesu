@@ -9,13 +9,6 @@ const store = new Vuex.Store({
     presentation:[
 
     ],
-    template: {
-      1: {
-        id: 1,
-        title: "Заголовок",
-        html: `<div `
-      }
-    },
     phone:          "",
     firstName:      "Имя",
     lastName:       "Фамилия",
@@ -75,11 +68,34 @@ const store = new Vuex.Store({
         state.presentation.push( response.data.data )
       })
     },
-    uploadPresentation(state){
-      HTTP.get('presentations')
-      .then(response => {
-        state.presentation = response.data.data
+    async uploadPresentation(state){
+      let response
+
+      try {
+          response = await HTTP.get('presentations')
+      } catch (ex) {
+          // Handle error
+          return
+      }
+
+      response.data.data.forEach((item, index) => {
+        let slides
+          HTTP.get(`presentations/${item.id}/slides`)
+          .then(object => {
+              response.data.data[index].slides = object.data.data
+              if(object.data.data)
+              object.data.data.forEach((item_poll, i) => {
+                if(item.attributes.slide_type == 'poll'){
+                  HTTP.get(`slides/${item_poll.id}/poll`)
+                  .then(poll => {
+                    response.data.data[index].slides[i].poll = poll
+                  })
+                }
+              })
+
+          })
       })
+      state.presentation = response.data.data
     },
     addSlide(state, {id_presentataions, slide_name, slide_position, slide}){
       const index = state.presentation.length
@@ -90,7 +106,22 @@ const store = new Vuex.Store({
             attributes: {
               name: slide_name,
               position: slide_position,
-              slide
+              body:{
+                field1:{
+                  type: "title",
+                  text: "Заголовок",
+                  style: "bold",
+                  size: "24px",
+                  align: "center"
+                },
+                field2:{
+                  type: "subtitle",
+                  text: "Подзаголовок",
+                  style: "normal",
+                  size: "18px",
+                  align: "left"
+                }
+              }
             },
             relationships: {
               presentation: {
@@ -101,6 +132,30 @@ const store = new Vuex.Store({
               }
             }
           }
+        })
+      )
+      .then(response => {
+        state.presentation.push( response.data.data )
+      })
+    },
+    addSlidePoll(state, {id_slide, name_poll, options_poll}){
+      HTTP.post('polls',
+        JSON.stringify({
+            "data": {
+                "type": "polls",
+                "attributes": {
+                    "name": name_poll,
+                    "options": options_poll
+                },
+                "relationships": {
+                    "slide": {
+                        "data": {
+                            "type": "slides",
+                            "id": "" + id_slide
+                        }
+                    }
+                }
+            }
         })
       )
       .then(response => {
