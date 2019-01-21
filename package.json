@@ -36,6 +36,7 @@
     "css-loader": "^0.28.7",
     "file-loader": "^1.1.4",
     "jsonp": "^0.2.1",
+    "uglifyjs-webpack-plugin": "^1.0.0-beta.1",
     "url-loader": "^1.1.2",
     "vue-bootstrap-colorpicker": "^2.0.8",
     "vue-loader": "^13.0.5",
