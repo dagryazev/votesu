@@ -11,12 +11,13 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "image-to-base64": "^2.0.1",
     "inputmask": "^4.0.5",
     "moment": "^2.23.0",
     "vue": "^2.5.11",
     "vue-cookie": "^1.1.4",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "vue-router": "*",
+    "vue-moment": "*"
   },
   "browserslist": [
     "> 1%",
@@ -36,6 +37,7 @@
     "file-loader": "^1.1.4",
     "jsonp": "^0.2.1",
     "url-loader": "^1.1.2",
+    "vue-bootstrap-colorpicker": "^2.0.8",
     "vue-loader": "^13.0.5",
     "vue-template-compiler": "^2.4.4",
     "webpack": "^3.6.0",

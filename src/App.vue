@@ -23,6 +23,9 @@
             <li class="nav-item" v-if="this.$cookie.get('token')">
               <router-link class="nav-link" to="/poll">Результаты опросов</router-link>
             </li>
+            <li class="nav-item" v-if="this.$cookie.get('token')">
+              <router-link class="nav-link" to="/user">Пользователь</router-link>
+            </li>
           </ul>
           <div class="logout" v-if="this.$cookie.get('token')">
             {{this.$store.state.phone}}
@@ -43,7 +46,7 @@
           </ul>
         </div>
         <div class="title_presentation">
-          <b>{{this.$store.getters.getPresentationId($route.params.id).attributes.name}}</b>
+          <b>{{this.title_presentation}}</b>
         </div>
         <div class="start_presentation">
           <button type="button" name="button">НАЧАТЬ ПОКАЗ</button>
@@ -58,30 +61,7 @@
 </template>
 
 <script>
-import IndexPage from './routes/index'
-import LoginPage from './routes/login'
-import RegistrationPage from './routes/registration'
-import PresentationPage from './routes/presentation'
-import EditPage from './routes/edit'
-import PollPage from './routes/poll'
-import VerifyRegPage from './routes/verifyReg'
-import VerifyLoginPage from './routes/verifyLogin'
-import VueRouter from 'vue-router'
-
-const routes = [
-  { path: '/', component: IndexPage, name: "main" },
-  { path: '/registration', component: RegistrationPage, name: "registration" },
-  { path: '/login', component: LoginPage, name: "login" },
-  { path: '/presentation', component: PresentationPage, name: "presentation" },
-  { path: '/poll', component: PollPage, name: "poll" },
-  { path: '/edit/:id', name: "edit", component: EditPage },
-  { path: '/verify_reg', component: VerifyRegPage, name: "verify_reg" },
-  { path: '/verify_login', component: VerifyLoginPage, name: "verify_login" }
-]
-const router = new VueRouter({
-  routes,
-  mode: "history"
-})
+import router from './Routes.js'
 
 const Access = function(token) {
   let nameRoute = router.currentRoute.name
@@ -120,6 +100,11 @@ const Access = function(token) {
 export default {
   name: 'app',
   router,
+  data: function() {
+    return {
+      title_presentation: ""
+    }
+  },
   watch: {
     '$route' (to, from) {
       Access(this.$cookie.get("token"))
@@ -129,15 +114,16 @@ export default {
     deleteCookie(){
       this.$cookie.delete('token')
       this.$cookie.delete('token_refresh')
-      router.push({name: "login"})
+      router.push( { name: "login" } )
     }
   },
   created(){
-    this.$store.commit("uploadPresentation")
     this.$store.commit('updatePhone', localStorage.phone)
     if( Access(this.$cookie.get("token")) ){
-      if(this.$cookie.get("token") == null)
+      if(this.$cookie.get("token") == null){
+          localStorage.phone = '';
           this.$store.commit("updateToken")
+        }
       setInterval(() => {
         if(this.$cookie.get("token") == null){
             this.$store.commit("updateToken")
@@ -148,6 +134,11 @@ export default {
   },
   mounted(){
 
+  },
+  computed:{
+    getTitlePresentations(){
+      this.title_presentation = "Название"
+    }
   }
 }
 </script>

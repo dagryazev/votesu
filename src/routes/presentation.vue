@@ -9,7 +9,7 @@
       <router-link :to="{ name: 'edit', params: {id: item.id} }">
         <img :src="item.attributes.name" class="card-img-top">
         <div class="card-body">
-          <p class="card-text">{{ item.attributes.name }}</p>
+          <p class="card-text">{{ item.attributes.title }}</p>
         </div>
       </router-link>
     </div>
@@ -18,13 +18,14 @@
 
 <script>
 export default {
-  mounted(){
-    this.$store.commit("uploadPresentation")
-  },
   methods:{
     addPresentation(){
-      this.$store.commit("addPresentation")
-    }
+      const id = this.$store.commit("addPresentation")
+    },
+  },
+  mounted(){
+    console.log("creadted");
+    this.$store.dispatch("uploadPresentation")
   }
 }
 </script>

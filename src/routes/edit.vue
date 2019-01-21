@@ -29,8 +29,22 @@ export default {
     SlideContainterComponents,
     DetailsObjectComponents
   },
+  data: function() {
+    return {
+      selectedElement: 'text'
+    }
+  },
+  computed:{
+    presentation(){
+      return this.$store.state.presentation
+    }
+  },
   created(){
-    console.log('sdf');
+    this.$store.state.selectedSlide = 0;
+    this.$store.commit("set",{ type: "selectedPresentation", items: this.$route.params.id })
+  },
+  mounted(){
+    this.$store.dispatch("uploadPresentation")
   }
 }
 </script>
@@ -44,6 +58,10 @@ export default {
 }
 .left-row{
   height: 925px;
+  overflow-y: scroll;
+}
+.left-row::-webkit-scrollbar {
+    display: none;
 }
 .center-row{
   padding: 0px;
