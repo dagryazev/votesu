@@ -20,7 +20,6 @@ const store = new Vuex.Store({
   },
   getters: {
     getPresentation(state){
-      console.log(state.presentation);
       return [].concat(state.presentation).reverse()
     },
     getPresentationId: state => id => {
@@ -38,23 +37,31 @@ const store = new Vuex.Store({
     getSlideType: state => id =>{
       return store.getters.getPresentationId(id).slides[state.selectedSlide].attributes.slide_type
     },
-    getValueObject: state => ({id_presentataions, selectedElement}) => {
-      switch (selectedElement) {
-        case 'text[0]':
-          return "Текст 1"
-          break;
-        case 'text[1]':
-          return "Текст 2"
-          break;
-        default:
-          return "Заголовок"
-
-      }
+    getValueObject: state => ({selectedElement}) => {
+      if(store.getters.getPresentationId(state.selectedPresentation).slides){
+        if(selectedElement.type == 'option')
+          return store.getters.getPoll.attributes.options[selectedElement.index].text
+        if(selectedElement.type == 'contacts')
+          return store.getters.getSlides[ state.selectedSlide ].attributes.contacts[ selectedElement.value ]
+        switch (selectedElement) {
+          case 'text[0]':
+            return store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes.columns[0].text
+            break;
+          case 'text[1]':
+            return store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes.columns[1].text
+            break;
+          case 'video':
+            return store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes[selectedElement].src
+            break;
+          default:
+            return store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes[selectedElement]
+        }
+      }else return ''
     },
     getPoll(state) {
       if(!store.getters.getPresentationId(state.selectedPresentation).slides)return false
       let returnPoll = false,
-          id_slide   =  store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].id
+          id_slide   =   store.getters.getPresentationId(state.selectedPresentation).slides != undefined ? store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].id : 1
       state.polls.forEach((item, i) => {
         if(item.idSlide == id_slide) returnPoll = item
       })
@@ -85,8 +92,6 @@ const store = new Vuex.Store({
       store.getters.getUser.attributes[input] = value
     },
     updateSlidePresentation(state, {index, data}){
-      // if(!state.presentation[index].slides[data.id]) Vue.set(state.presentation[index].slides, data.id, [])
-      // state.presentation[index].slides[data.id].push(data)
       Vue.set(state.presentation[index], 'slides', [])
       state.presentation[index].slides = data
     },
@@ -104,7 +109,6 @@ const store = new Vuex.Store({
           this.$cookie.set("token_refresh", response.data.token, {expires: '86400s'})
           instance.HTTP.headers['Authorization'] = "Bearer " + response.data.token
         })
-        console.log("Токен есть");
     },
     addPresentation(state){
       const index = state.presentation.length;
@@ -131,7 +135,7 @@ const store = new Vuex.Store({
           type: "slides",
           attributes: {
             title: slide_name,
-            order_id: state.selectedSlide + 1 + "",
+            order_id: slide_position + 2 + "",
             slide_type,
             bg_color: "#ffffff",
             bg_alpha: "100"
@@ -147,47 +151,62 @@ const store = new Vuex.Store({
         }
       switch (slide_type) {
         case "header":
-            data.attributes.header = "Заголовок"
-            data.attributes.subheader = "Подзаголовок"
+            data.attributes.header = ""
+            data.attributes.subheader = ""
           break;
 
         case "text":
-        data.attributes.header = "Заголовок"
+        data.attributes.header = ""
         data.attributes.columns = [
-          {
-            "text": "Текст 1",
-            weight: 1
-          },
-          {
-            "text": "Текст 2",
-            weight: 0
-          }
-        ]
+            {
+              "text": "",
+              weight: 1
+            },
+            {
+              "text": "",
+              weight: 0
+            }
+          ]
           break;
 
         case "text_picture":
-          data.attributes.header = "Заголовок"
-          data.attributes.text   = "Текст"
+          data.attributes.header = ""
+          data.attributes.text   = ""
           data.attributes.image_position = "left"
           data.attributes.image = {}
           data.attributes.image.src = "https://st.depositphotos.com/2692701/3194/i/450/depositphotos_31940381-stock-photo-crumpled-five-dollar-bill.jpg"
           break;
 
         case "picture":
-          data.attributes.header = "Заголовок"
+          data.attributes.header = ""
           data.attributes.image_position = "center"
           data.attributes.image = {}
           data.attributes.image.src = "https://st.depositphotos.com/2692701/3194/i/450/depositphotos_31940381-stock-photo-crumpled-five-dollar-bill.jpg"
           break;
 
         case "video":
-          data.attributes.header = "Заголовок"
+          data.attributes.header = ""
           data.attributes.video = {}
           data.attributes.video.src = "https://www.youtube.com/watch?v=mq760JdoO-E"
           break;
 
+        case "contacts":
+        data.attributes.header = ""
+        data.attributes.subheader = ""
+        data.attributes.contacts = {
+            "email": "",
+            "phone": store.getters.getUser.attributes.phone,
+            "site": "",
+            "address": "",
+            "facebook": "",
+            "linkedin": "",
+            "twitter": "",
+            "vkontakte": ""
+          }
+          break;
+
         case "poll":
-        data.attributes.header = "Заголовок"
+        data.attributes.header = ""
           break;
         default:
 
@@ -232,10 +251,16 @@ const store = new Vuex.Store({
 
 
     },
-    updateObjectSlide(state, {value, selectedElement, id_presentataions}){
+    updateObjectSlide(state, {value, selectedElement}){
       if( selectedElement == "text[0]" || selectedElement == "text[1]")
-        state.presentation[id_presentataions - 1].slides[state.selectedSlide].attributes.columns[selectedElement.match(/(\d+)/g)].text = value
-      state.presentation[id_presentataions - 1].slides[state.selectedSlide].attributes[selectedElement] = value
+        store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes.columns[selectedElement.match(/(\d+)/g)].text = value
+      else if( selectedElement == "video")
+        store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes[selectedElement].src = value
+      else if( selectedElement.type == "option")
+        store.getters.getPoll.attributes.options[ selectedElement['index'] ].text = value
+      else if( selectedElement.type == "contacts")
+        store.getters.getSlides[ state.selectedSlide ].attributes.contacts[ selectedElement['value'] ] = value
+      else store.getters.getPresentationId(state.selectedPresentation).slides[state.selectedSlide].attributes[selectedElement] = value
     },
     updatePresentations(state, data){
       state.presentation = data
@@ -288,6 +313,15 @@ const store = new Vuex.Store({
       .then(response => {
         store.commit("addUser", response.data.data)
       })
+    },
+    saveChangeSlide(store){
+      HTTP.patch(`slides/${store.getters.getSlides[store.state.selectedSlide].id}`,JSON.stringify({
+        data:{
+          type: "slides",
+          id: store.getters.getSlides[store.state.selectedSlide].id,
+          attributes: store.getters.getSlides[ store.state.selectedSlide ].attributes
+        }
+      }))
     }
   }
 })

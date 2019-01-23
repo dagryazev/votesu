@@ -8,7 +8,6 @@ import Moment from 'vue-moment'
 Vue.use(Moment)
 Vue.use(VueCookie)
 Vue.use(VueRouter)
-// console.log("Ваш токен: " + VueCookie.get('token'));
 
 
 new Vue({
